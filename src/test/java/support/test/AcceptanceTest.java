@@ -1,7 +1,6 @@
 package support.test;
 
-import codesquad.domain.Question;
-import codesquad.domain.QuestionRepository;
+import codesquad.domain.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,9 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import codesquad.domain.User;
-import codesquad.domain.UserRepository;
-
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -21,7 +17,8 @@ import static org.junit.Assert.assertThat;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 public abstract class AcceptanceTest {
     private static final String DEFAULT_LOGIN_USER = "javajigi";
-    private static final long TEST_QNA_ID = 1L;
+    private static final long TEST_QUESTION_ID = 1L;
+    private static final long TEST_ANSWER_ID = 1L;
 
     @Autowired
     private TestRestTemplate template;
@@ -31,6 +28,9 @@ public abstract class AcceptanceTest {
 
     @Autowired
     private QuestionRepository questionRepository;
+
+    @Autowired
+    private AnswerRepository answerRepository;
 
     public TestRestTemplate template() {
         return template;
@@ -49,7 +49,11 @@ public abstract class AcceptanceTest {
     }
 
     protected Question defaultQuestion() {
-        return findByQuestionId(TEST_QNA_ID);
+        return findByQuestionId(TEST_QUESTION_ID);
+    }
+
+    protected Answer defaultAnswer() {
+        return findByAnswerId(TEST_ANSWER_ID);
     }
 
     protected User findByUserId(String userId) {
@@ -58,6 +62,10 @@ public abstract class AcceptanceTest {
 
     protected Question findByQuestionId(long questionId) {
         return questionRepository.findOne(questionId);
+    }
+
+    protected Answer findByAnswerId(long answerId) {
+        return answerRepository.findOne(answerId);
     }
 
     protected String createResource(String path, Object bodyPayload) {
