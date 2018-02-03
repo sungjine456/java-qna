@@ -14,12 +14,16 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QnaServiceTest {
     @Mock
     private QuestionRepository questionRepository;
+
+    @Mock
+    private AnswerRepository answerRepository;
 
     @InjectMocks
     private QnaService qnaService;
@@ -81,5 +85,60 @@ public class QnaServiceTest {
         when(questionRepository.exists(question.getId())).thenReturn(true);
 
         qnaService.deleteQuestion(writer, question.getId());
+    }
+
+    @Test
+    public void 답글_추가() {
+        assertTrue(false);
+    }
+
+    @Test
+    public void 글이_없을_때_답글_추가() {
+        assertTrue(false);
+    }
+
+    @Test
+    public void 답글_검색() {
+        assertTrue(false);
+    }
+
+    @Test
+    public void 없는_답글_검색() {
+        assertTrue(false);
+    }
+
+    @Test
+    public void 글에_없는_답글_검색() {
+        assertTrue(false);
+    }
+
+    @Test
+    public void 답글_수정() {
+        assertTrue(false);
+    }
+
+    @Test
+    public void 없는_답글_수정() {
+        assertTrue(false);
+    }
+
+    @Test
+    public void 작성자가_아닐_때_답글_수정() {
+        assertTrue(false);
+    }
+
+    @Test
+    public void 답글_삭제() {
+        assertTrue(false);
+    }
+
+    @Test
+    public void 없는_답글_삭제() {
+        assertTrue(false);
+    }
+
+    @Test
+    public void 작성자가_아닐_때_답글_삭제() {
+        assertTrue(false);
     }
 }

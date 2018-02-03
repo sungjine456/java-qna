@@ -79,6 +79,14 @@ public class QnaService {
         return null;
     }
 
+    public Answer findAnswerById(long id) {
+        return null;
+    }
+
+    public Answer updateAnswer() {
+        return null;
+    }
+
     public Answer deleteAnswer(User loginUser, long id) {
         // TODO 답변 삭제 기능 구현 
         return null;
