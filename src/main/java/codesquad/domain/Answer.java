@@ -35,24 +35,19 @@ public class Answer extends AbstractEntity implements UrlGeneratable {
         this.contents = contents;
     }
 
-    public Answer(Long id, User writer, Question question, String contents) {
-        super(id);
+    public Answer(User writer, Question question, String contents) {
         this.writer = writer;
         this.question = question;
         this.contents = contents;
         this.deleted = false;
     }
 
-    public User getWriter() {
-        return writer;
-    }
-
-    public Question getQuestion() {
-        return question;
-    }
-
-    public String getContents() {
-        return contents;
+    public Answer(Long id, User writer, Question question, String contents) {
+        super(id);
+        this.writer = writer;
+        this.question = question;
+        this.contents = contents;
+        this.deleted = false;
     }
 
     public void toQuestion(Question question) {
@@ -69,6 +64,15 @@ public class Answer extends AbstractEntity implements UrlGeneratable {
 
     public AnswerDto toAnswerDto() {
         return new AnswerDto(getId(), contents);
+    }
+
+    public boolean isQuestion(long questionId) {
+        return questionId == question.getId();
+    }
+
+    public Answer update(String updateContents) {
+        contents = updateContents;
+        return this;
     }
 
     @Override

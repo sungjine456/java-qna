@@ -1,6 +1,7 @@
 package codesquad.service;
 
 import codesquad.CannotDeleteException;
+import codesquad.CannotFindException;
 import codesquad.UnAuthorizedException;
 import codesquad.domain.*;
 import codesquad.dto.QuestionDto;
@@ -15,6 +16,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -88,57 +90,89 @@ public class QnaServiceTest {
     }
 
     @Test
-    public void 답글_추가() {
-        assertTrue(false);
+    public void 답글_추가() throws Exception {
+        Question question = new Question(1, "title", "contents", writer);
+        when(questionRepository.findOne(1L)).thenReturn(question);
+
+        qnaService.addAnswer(writer, 1L, "contents");
+        verify(answerRepository).save(new Answer(writer, "contents"));
+    }
+
+    @Test(expected = CannotFindException.class)
+    public void 글이_없을_때_답글_추가() throws Exception {
+        when(questionRepository.findOne(1L)).thenReturn(null);
+
+        qnaService.addAnswer(writer, 1L, "contents");
     }
 
     @Test
-    public void 글이_없을_때_답글_추가() {
-        assertTrue(false);
+    public void 답글_수정() throws Exception {
+        Question question = new Question(1L, "title", "contents", writer);
+        Answer answer = new Answer(1L, writer, question, "contents");
+        when(answerRepository.findOne(1L)).thenReturn(answer);
+        when(answerRepository.exists(1L)).thenReturn(true);
+
+        Answer updateAnswer = qnaService.updateAnswer(writer, 1L, 1L, "updateContents");
+        assertThat(updateAnswer, is(answer));
+    }
+
+    @Test(expected = CannotFindException.class)
+    public void 없는_답글_수정() throws Exception {
+        when(answerRepository.exists(1L)).thenReturn(false);
+
+        qnaService.updateAnswer(writer, 1L, 1L, "updateContents");
+    }
+
+    @Test(expected = UnAuthorizedException.class)
+    public void 작성자가_아닐_때_답글_수정() throws Exception {
+        Question question = new Question(1L, "title", "contents", writer);
+        Answer answer = new Answer(1L, writer, question, "contents");
+        User wrongWriter = new User("testId2", "testP", "testN", "test@slipp.net");
+        when(answerRepository.findOne(1L)).thenReturn(answer);
+        when(answerRepository.exists(1L)).thenReturn(true);
+
+        qnaService.updateAnswer(wrongWriter, 1L, 1L, "updateContents");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void 잘못된_글에서_답글_수정() throws Exception {
+        Question question = new Question(1L, "title", "contents", writer);
+        Answer answer = new Answer(1L, writer, question, "contents");
+        when(answerRepository.findOne(answer.getId())).thenReturn(answer);
+        when(answerRepository.exists(answer.getId())).thenReturn(true);
+
+        qnaService.updateAnswer(writer, 3L, 1L, "updateContents");
     }
 
     @Test
-    public void 답글_검색() {
-        assertTrue(false);
+    public void 답글_삭제() throws Exception {
+        Question question = new Question(1L, "title", "contents", writer);
+        Answer answer = new Answer(1L, writer, question, "contents");
+        when(answerRepository.findOne(answer.getId())).thenReturn(answer);
+        when(answerRepository.exists(answer.getId())).thenReturn(true);
+
+        qnaService.deleteAnswer(writer, 1L);
+        verify(answerRepository).delete(1L);
     }
 
-    @Test
-    public void 없는_답글_검색() {
-        assertTrue(false);
+    @Test(expected = CannotFindException.class)
+    public void 없는_답글_삭제() throws Exception {
+        Question question = new Question(1L, "title", "contents", writer);
+        Answer answer = new Answer(1L, writer, question, "contents");
+        when(answerRepository.findOne(answer.getId())).thenReturn(answer);
+        when(answerRepository.exists(answer.getId())).thenReturn(false);
+
+        qnaService.deleteAnswer(writer, 1L);
     }
 
-    @Test
-    public void 글에_없는_답글_검색() {
-        assertTrue(false);
-    }
+    @Test(expected = UnAuthorizedException.class)
+    public void 작성자가_아닐_때_답글_삭제() throws Exception {
+        User wrongWriter = new User("testId2", "testP", "testN", "test@slipp.net");
+        Question question = new Question(1L, "title", "contents", writer);
+        Answer answer = new Answer(1L, wrongWriter, question, "contents");
+        when(answerRepository.findOne(answer.getId())).thenReturn(answer);
+        when(answerRepository.exists(answer.getId())).thenReturn(true);
 
-    @Test
-    public void 답글_수정() {
-        assertTrue(false);
-    }
-
-    @Test
-    public void 없는_답글_수정() {
-        assertTrue(false);
-    }
-
-    @Test
-    public void 작성자가_아닐_때_답글_수정() {
-        assertTrue(false);
-    }
-
-    @Test
-    public void 답글_삭제() {
-        assertTrue(false);
-    }
-
-    @Test
-    public void 없는_답글_삭제() {
-        assertTrue(false);
-    }
-
-    @Test
-    public void 작성자가_아닐_때_답글_삭제() {
-        assertTrue(false);
+        qnaService.deleteAnswer(writer, 1L);
     }
 }
