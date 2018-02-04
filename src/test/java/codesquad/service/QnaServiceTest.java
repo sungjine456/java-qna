@@ -106,6 +106,34 @@ public class QnaServiceTest {
     }
 
     @Test
+    public void 답글_검색() throws Exception {
+        Question question = new Question(1L, "title", "contents", writer);
+        Answer answer = new Answer(1L, writer, question, "contents");
+        when(answerRepository.exists(1L)).thenReturn(true);
+        when(answerRepository.findOne(1L)).thenReturn(answer);
+
+        Answer returnAnswer = qnaService.findAnswer(1L, 1L);
+        assertThat(answer, is(returnAnswer));
+    }
+
+    @Test(expected = CannotFindException.class)
+    public void 없는_답글_검색() throws Exception {
+        when(answerRepository.exists(1L)).thenReturn(false);
+
+        qnaService.findAnswer(1L, 1L);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void 글에_없는_답글_검색() throws Exception {
+        Question question = new Question(1L, "title", "contents", writer);
+        Answer answer = new Answer(1L, writer, question, "contents");
+        when(answerRepository.exists(1L)).thenReturn(true);
+        when(answerRepository.findOne(1L)).thenReturn(answer);
+
+        qnaService.findAnswer(3L, 1L);
+    }
+
+    @Test
     public void 답글_수정() throws Exception {
         Question question = new Question(1L, "title", "contents", writer);
         Answer answer = new Answer(1L, writer, question, "contents");
@@ -152,7 +180,7 @@ public class QnaServiceTest {
         when(answerRepository.exists(answer.getId())).thenReturn(true);
 
         qnaService.deleteAnswer(writer, 1L);
-        verify(answerRepository).delete(1L);
+        assertTrue(answer.isDeleted());
     }
 
     @Test(expected = CannotFindException.class)

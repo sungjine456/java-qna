@@ -84,8 +84,15 @@ public class QnaService {
         return answerRepository.save(new Answer(loginUser, question, contents));
     }
 
-    public Answer findAnswerById(long id) {
-        return answerRepository.findOne(id);
+    public Answer findAnswer(long questionId, long answerId) throws CannotFindException {
+        if (!answerRepository.exists(answerId)) {
+            throw new CannotFindException("없는 답글입니다.");
+        }
+        Answer answer = answerRepository.findOne(answerId);
+        if (!answer.isQuestion(questionId)) {
+            throw new IllegalArgumentException();
+        }
+        return answer;
     }
 
     @Transactional
@@ -104,6 +111,7 @@ public class QnaService {
         return answer.update(updateContents);
     }
 
+    @Transactional
     public void deleteAnswer(User loginUser, long id) throws CannotFindException {
         if (!answerRepository.exists(id)) {
             throw new CannotFindException("없는 답글입니다.");
@@ -112,6 +120,6 @@ public class QnaService {
         if (!answer.isOwner(loginUser)) {
             throw new UnAuthorizedException();
         }
-        answerRepository.delete(id);
+        answer.delete();
     }
 }
