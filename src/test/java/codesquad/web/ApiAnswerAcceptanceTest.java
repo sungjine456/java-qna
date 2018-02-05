@@ -1,6 +1,9 @@
 package codesquad.web;
 
+import codesquad.domain.Answer;
+import codesquad.domain.Question;
 import codesquad.dto.AnswerDto;
+import org.junit.Before;
 import org.junit.Test;
 import support.test.AcceptanceTest;
 
@@ -9,6 +12,8 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.*;
 
 public class ApiAnswerAcceptanceTest extends AcceptanceTest {
+
+    private String url;
 
     @Test
     public void create() {
@@ -22,7 +27,7 @@ public class ApiAnswerAcceptanceTest extends AcceptanceTest {
 
     @Test
     public void show() {
-        AnswerDto answerDto = getResource("/api/questions/1/answers/" + defaultAnswer().getId(),
+        AnswerDto answerDto = getResource(defaultAnswer().generateApiUrl(),
                 AnswerDto.class, findByUserId(defaultUser().getUserId()));
         assertThat(answerDto, is(defaultAnswer().toAnswerDto()));
     }
@@ -30,7 +35,7 @@ public class ApiAnswerAcceptanceTest extends AcceptanceTest {
     @Test
     public void update() {
         AnswerDto updateAnswer = new AnswerDto(defaultAnswer().getId(), "updateContents");
-        String location = "/api/questions/1/answers/" + defaultAnswer().getId();
+        String location = defaultAnswer().generateApiUrl();
         basicAuthTemplate(defaultUser()).put(location, updateAnswer.getContents());
 
         AnswerDto dbAnswer = getResource(location, AnswerDto.class, findByUserId(defaultUser().getUserId()));
@@ -40,7 +45,7 @@ public class ApiAnswerAcceptanceTest extends AcceptanceTest {
     @Test
     public void update_실패() {
         AnswerDto updateAnswer = new AnswerDto(5L, "updateContents");
-        String location = "/api/questions/1/answers/" + updateAnswer.getId();
+        String location = defaultAnswer().generateApiUrl();
         basicAuthTemplate(defaultUser()).put(location, updateAnswer.getContents());
 
         AnswerDto dbAnswer = getResource(location, AnswerDto.class, findByUserId(defaultUser().getUserId()));
@@ -60,7 +65,7 @@ public class ApiAnswerAcceptanceTest extends AcceptanceTest {
     @Test
     public void delete_실패() {
         assertFalse(findByAnswerId(defaultAnswer().getId()).isDeleted());
-        String location = "/api/questions/1/answers/" + defaultAnswer().getId();
+        String location = defaultAnswer().generateApiUrl();
         basicAuthTemplate(findByUserId("sanjigi")).delete(location);
 
         assertFalse(findByAnswerId(defaultAnswer().getId()).isDeleted());

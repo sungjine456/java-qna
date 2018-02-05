@@ -76,12 +76,16 @@ public class QnaService {
         return questionRepository.findAll(pageable).getContent();
     }
 
+    @Transactional
     public Answer addAnswer(User loginUser, long questionId, String contents) throws CannotFindException {
         Question question = questionRepository.findOne(questionId);
         if (question == null) {
             throw new CannotFindException("글이 없습니다.");
         }
-        return answerRepository.save(new Answer(loginUser, question, contents));
+        Answer answer = new Answer(loginUser, question, contents);
+        question.addAnswer(answer);
+
+        return answer;
     }
 
     public Answer findAnswer(long questionId, long answerId) throws CannotFindException {
@@ -101,14 +105,8 @@ public class QnaService {
             throw new CannotFindException("없는 답글입니다.");
         }
         Answer answer = answerRepository.findOne(answerId);
-        if (!answer.isOwner(loginUser)) {
-            throw new UnAuthorizedException();
-        }
 
-        if (!answer.isQuestion(questionId)) {
-            throw new IllegalArgumentException();
-        }
-        return answer.update(updateContents);
+        return answer.update(loginUser, questionId, updateContents);
     }
 
     @Transactional
@@ -117,9 +115,7 @@ public class QnaService {
             throw new CannotFindException("없는 답글입니다.");
         }
         Answer answer = answerRepository.findOne(id);
-        if (!answer.isOwner(loginUser)) {
-            throw new UnAuthorizedException();
-        }
-        answer.delete();
+
+        answer.delete(loginUser);
     }
 }

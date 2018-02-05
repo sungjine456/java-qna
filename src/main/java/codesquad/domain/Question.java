@@ -36,6 +36,10 @@ public class Question extends AbstractEntity implements UrlGeneratable {
     public Question() {
     }
 
+    public Question(long id) {
+        super(id);
+    }
+
     public Question(String title, String contents) {
         this.title = title;
         this.contents = contents;
@@ -109,6 +113,11 @@ public class Question extends AbstractEntity implements UrlGeneratable {
     @Override
     public String generateUrl() {
         return String.format("/questions/%d", getId());
+    }
+
+    @Override
+    public String generateApiUrl() {
+        return "/api" + generateUrl();
     }
 
     public QuestionDto toQuestionDto() {

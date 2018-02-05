@@ -14,6 +14,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
@@ -94,8 +95,9 @@ public class QnaServiceTest {
         Question question = new Question(1, "title", "contents", writer);
         when(questionRepository.findOne(1L)).thenReturn(question);
 
+        assertFalse(question.notEmptyAnswer());
         qnaService.addAnswer(writer, 1L, "contents");
-        verify(answerRepository).save(new Answer(writer, "contents"));
+        assertTrue(question.notEmptyAnswer());
     }
 
     @Test(expected = CannotFindException.class)

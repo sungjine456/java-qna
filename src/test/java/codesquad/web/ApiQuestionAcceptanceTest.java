@@ -1,5 +1,6 @@
 package codesquad.web;
 
+import codesquad.domain.Question;
 import codesquad.dto.QuestionDto;
 import org.junit.Test;
 import support.test.AcceptanceTest;
@@ -14,7 +15,8 @@ public class ApiQuestionAcceptanceTest extends AcceptanceTest {
     public void create() {
         QuestionDto questionDto = new QuestionDto(3L, "title", "contents");
         assertNull(findByQuestionId(3L));
-        String location = createBasicTemplateResource("/api/questions", questionDto);
+        String url = defaultQuestion().generateApiUrl();
+        String location = createBasicTemplateResource(url.substring(0, url.length()-2), questionDto);
 
         QuestionDto dbQuestion = getResource(location, QuestionDto.class, findByUserId(defaultUser().getUserId()));
         assertThat(dbQuestion, is(questionDto));
@@ -22,7 +24,7 @@ public class ApiQuestionAcceptanceTest extends AcceptanceTest {
 
     @Test
     public void show() {
-        QuestionDto questionDto = getResource("/api/questions/" + defaultQuestion().getId(),
+        QuestionDto questionDto = getResource(defaultQuestion().generateApiUrl(),
                 QuestionDto.class, findByUserId(defaultUser().getUserId()));
         assertThat(questionDto, is(defaultQuestion().toQuestionDto()));
     }
@@ -30,7 +32,7 @@ public class ApiQuestionAcceptanceTest extends AcceptanceTest {
     @Test
     public void update() {
         QuestionDto updateQuestion = new QuestionDto(defaultQuestion().getId(), "updateTitle", "updateContents");
-        String location = "/api/questions/" + defaultQuestion().getId();
+        String location = defaultQuestion().generateApiUrl();
         basicAuthTemplate(defaultUser()).put(location, updateQuestion);
 
         QuestionDto dbQuestion = getResource(location, QuestionDto.class, findByUserId(defaultUser().getUserId()));
@@ -41,7 +43,7 @@ public class ApiQuestionAcceptanceTest extends AcceptanceTest {
     public void update_실패() throws Exception {
         QuestionDto existingQuestionDto = defaultQuestion().toQuestionDto();
         QuestionDto updateQuestion = new QuestionDto(5L, "updateTitle", "updateContents");
-        String location = "/api/questions/" + defaultQuestion().getId();
+        String location = defaultQuestion().generateApiUrl();
         basicAuthTemplate(defaultUser()).put(location, updateQuestion);
 
         QuestionDto dbQuestion = getResource(location, QuestionDto.class, findByUserId(defaultUser().getUserId()));
@@ -62,7 +64,7 @@ public class ApiQuestionAcceptanceTest extends AcceptanceTest {
     @Test
     public void delete_실패() {
         assertFalse(findByQuestionId(defaultQuestion().getId()).isDeleted());
-        String location = "/api/questions/" + defaultQuestion().getId();
+        String location = defaultQuestion().generateApiUrl();
         basicAuthTemplate(findByUserId("sanjigi")).delete(location);
 
         assertFalse(findByQuestionId(defaultQuestion().getId()).isDeleted());

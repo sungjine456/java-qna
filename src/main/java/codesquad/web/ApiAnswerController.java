@@ -35,7 +35,7 @@ public class ApiAnswerController {
         }
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("/api/questions/" + questionId + "/answers/" + addAnswer.getId()));
+        headers.setLocation(URI.create(addAnswer.generateApiUrl()));
         return new ResponseEntity<Void>(headers, HttpStatus.CREATED);
     }
 

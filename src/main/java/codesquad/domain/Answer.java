@@ -7,6 +7,7 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.validation.constraints.Size;
 
+import codesquad.UnAuthorizedException;
 import codesquad.dto.AnswerDto;
 import support.domain.AbstractEntity;
 import support.domain.UrlGeneratable;
@@ -28,6 +29,10 @@ public class Answer extends AbstractEntity implements UrlGeneratable {
     private boolean deleted = false;
 
     public Answer() {
+    }
+
+    public Answer(long id) {
+        super(id);
     }
 
     public Answer(User writer, String contents) {
@@ -70,18 +75,32 @@ public class Answer extends AbstractEntity implements UrlGeneratable {
         return questionId == question.getId();
     }
 
-    public Answer update(String updateContents) {
+    public Answer update(User loginUser, long questionId, String updateContents) {
+        if (!isOwner(loginUser)) {
+            throw new UnAuthorizedException();
+        }
+        if (!isQuestion(questionId)) {
+            throw new IllegalArgumentException();
+        }
         contents = updateContents;
         return this;
     }
 
-    public void delete() {
+    public void delete(User loginUser) {
+        if (!isOwner(loginUser)) {
+            throw new UnAuthorizedException();
+        }
         deleted = true;
     }
 
     @Override
     public String generateUrl() {
         return String.format("%s/answers/%d", question.generateUrl(), getId());
+    }
+
+    @Override
+    public String generateApiUrl() {
+        return "/api" + generateUrl();
     }
 
     @Override
